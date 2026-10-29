@@ -340,18 +340,34 @@
 
       <!-- VIEW 3: CALENDAR (Календарь и Осознанный План) -->
       <section id="view-calendar" class="view-panel">
-        <div class="view-content-container">
+        <div class="view-content-container calendar-container-wide">
           
           <div class="calendar-top-controls">
-            <div class="calendar-title-group">
-              <h2 class="section-title" data-i18n="calendar_title">Календарь</h2>
-              <span class="calendar-range-label" id="calendar-current-label">Сегодня</span>
+            <div class="calendar-nav-group">
+              <div class="calendar-title-group">
+                <h2 class="section-title" data-i18n="calendar_title">Календарь</h2>
+              </div>
+              <div class="calendar-nav-arrows">
+                <button class="cal-nav-btn" id="cal-prev-btn" title="Предыдущий период" aria-label="Предыдущий">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+                <button class="cal-today-btn" id="cal-today-btn" data-i18n="cal_today_jump">Сегодня</button>
+                <button class="cal-nav-btn" id="cal-next-btn" title="Следующий период" aria-label="Следующий">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <span class="calendar-range-label" id="calendar-current-label">29 октября 2026</span>
             </div>
 
             <div class="calendar-actions-row">
-              <div class="view-switch-tabs">
-                <button class="view-tab-btn active" id="cal-view-day-btn" data-i18n="cal_day">День</button>
-                <button class="view-tab-btn" id="cal-view-week-btn" data-i18n="cal_week">Неделя</button>
+              <div class="view-switch-tabs" role="tablist">
+                <button class="view-tab-btn active" id="cal-view-day-btn" data-cal-view="day" data-i18n="cal_day">День</button>
+                <button class="view-tab-btn" id="cal-view-week-btn" data-cal-view="week" data-i18n="cal_week">Неделя</button>
+                <button class="view-tab-btn" id="cal-view-month-btn" data-cal-view="month" data-i18n="cal_month">Месяц</button>
               </div>
 
               <button id="add-busy-event-btn" class="btn-secondary-sm" data-i18n="add_event">
@@ -365,7 +381,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
-                <span>Подтвердить план</span>
+                <span data-i18n="confirm_plan_text">Подтвердить</span>
               </button>
             </div>
           </div>
@@ -925,6 +941,10 @@
         <div class="form-group">
           <label class="form-label" data-i18n="event_title">Событие (пара, встреча, спорт, дорога)</label>
           <input type="text" id="event-title-input" class="form-input" placeholder="Например: Лекция по макроэкономике">
+        </div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="event_date">Дата события</label>
+          <input type="date" id="event-date-input" class="form-input">
         </div>
         <div class="form-row-2">
           <div class="form-group">

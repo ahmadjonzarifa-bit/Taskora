@@ -50,6 +50,11 @@
       calendar_title: 'Календарь',
       cal_day: 'День',
       cal_week: 'Неделя',
+      cal_month: 'Месяц',
+      cal_today_jump: 'Сегодня',
+      confirm_plan_text: 'Подтвердить',
+      more_tasks: 'ещё',
+      event_date: 'Дата события',
       add_event: 'Занятость',
       add_event_text: 'Занятость',
       confirm_plan: 'Подтвердить план',
@@ -177,6 +182,11 @@
       calendar_title: 'Calendar',
       cal_day: 'Day',
       cal_week: 'Week',
+      cal_month: 'Month',
+      cal_today_jump: 'Today',
+      confirm_plan_text: 'Confirm',
+      more_tasks: 'more',
+      event_date: 'Event date',
       add_event: 'Busy time',
       add_event_text: 'Busy time',
       confirm_plan: 'Confirm plan',
@@ -403,12 +413,14 @@
       {
         id: 'evt-1',
         title: 'Лекция: Макроэкономика (Ауд. 302)',
+        date: '2026-10-29',
         start_time: '11:15',
         end_time: '12:45'
       },
       {
         id: 'evt-2',
         title: 'Встреча по командному проекту',
+        date: '2026-10-29',
         start_time: '14:30',
         end_time: '15:45'
       }
@@ -426,6 +438,7 @@
     planStatus: 'draft',
     currentTab: 'today',
     calendarView: 'day',
+    calendarDate: new Date('2026-10-29T10:00:00'),
     matrixFilter: 'all',
     deletedTaskBuffer: null,
     undoTimer: null,
@@ -812,18 +825,113 @@
     },
 
     /* ========================================================================
-       7. COLLISION-FREE CALENDAR (Google Calendar Aesthetic)
+       7. CALENDAR SYSTEM (Day, Week & Month Views + Date Navigation)
        ======================================================================== */
+    formatDateISO(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+
+    setCalendarView(view) {
+      this.calendarView = view;
+      this.renderCalendarView();
+    },
+
+    prevCalendarPeriod() {
+      if (this.calendarView === 'day') {
+        this.calendarDate.setDate(this.calendarDate.getDate() - 1);
+      } else if (this.calendarView === 'week') {
+        this.calendarDate.setDate(this.calendarDate.getDate() - 7);
+      } else if (this.calendarView === 'month') {
+        this.calendarDate.setMonth(this.calendarDate.getMonth() - 1);
+      }
+      this.renderCalendarView();
+    },
+
+    nextCalendarPeriod() {
+      if (this.calendarView === 'day') {
+        this.calendarDate.setDate(this.calendarDate.getDate() + 1);
+      } else if (this.calendarView === 'week') {
+        this.calendarDate.setDate(this.calendarDate.getDate() + 7);
+      } else if (this.calendarView === 'month') {
+        this.calendarDate.setMonth(this.calendarDate.getMonth() + 1);
+      }
+      this.renderCalendarView();
+    },
+
+    todayCalendarPeriod() {
+      this.calendarDate = new Date();
+      this.renderCalendarView();
+    },
+
+    getWeekDays(baseDate) {
+      const curr = new Date(baseDate);
+      const day = curr.getDay(); // 0 is Sun, 1 is Mon...
+      const diff = curr.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(curr.setDate(diff));
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const next = new Date(monday);
+        next.setDate(monday.getDate() + i);
+        days.push(next);
+      }
+      return days;
+    },
+
     renderCalendarView() {
       const board = document.getElementById('calendar-board');
       if (!board) return;
 
-      const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+      const lang = this.user.locale || 'ru';
+      const locale = lang === 'en' ? 'en-US' : 'ru-RU';
+
+      // Update View Tabs Active State
+      document.querySelectorAll('#cal-view-day-btn, #cal-view-week-btn, #cal-view-month-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.calView === this.calendarView);
+      });
+
+      // Update Header Date Range Label
+      const labelEl = document.getElementById('calendar-current-label');
+      if (labelEl) {
+        if (this.calendarView === 'day') {
+          const opts = { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' };
+          const formatted = new Intl.DateTimeFormat(locale, opts).format(this.calendarDate);
+          labelEl.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        } else if (this.calendarView === 'week') {
+          const days = this.getWeekDays(this.calendarDate);
+          const start = days[0];
+          const end = days[6];
+          const fmtMonth = new Intl.DateTimeFormat(locale, { month: 'short' });
+          const startStr = `${start.getDate()} ${fmtMonth.format(start)}`;
+          const endStr = `${end.getDate()} ${fmtMonth.format(end)} ${end.getFullYear()}`;
+          labelEl.textContent = `${startStr} – ${endStr}`;
+        } else if (this.calendarView === 'month') {
+          const opts = { month: 'long', year: 'numeric' };
+          const formatted = new Intl.DateTimeFormat(locale, opts).format(this.calendarDate);
+          labelEl.textContent = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        }
+      }
+
+      // Update Draft Banner
       const draftBanner = document.getElementById('calendar-draft-banner');
       if (draftBanner) {
         draftBanner.style.display = this.planStatus === 'confirmed' ? 'none' : 'flex';
       }
 
+      // Render Active View
+      if (this.calendarView === 'day') {
+        this.renderCalendarDayView(board);
+      } else if (this.calendarView === 'week') {
+        this.renderCalendarWeekView(board);
+      } else if (this.calendarView === 'month') {
+        this.renderCalendarMonthView(board);
+      }
+    },
+
+    renderCalendarDayView(board) {
+      const hours = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
       let html = `<table class="calendar-timeline-table"><tbody>`;
       hours.forEach(hour => {
         const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
@@ -837,50 +945,57 @@
       html += `</tbody></table>`;
       board.innerHTML = html;
 
-      // Collect all scheduled blocks (Events + Tasks)
-      const allBlocks = [];
+      const targetDateStr = this.formatDateISO(this.calendarDate);
+
+      // Collect blocks for target day
+      const dayBlocks = [];
 
       this.events.forEach(evt => {
-        const [sH, sM] = evt.start_time.split(':').map(Number);
-        const [eH, eM] = evt.end_time.split(':').map(Number);
-        allBlocks.push({
-          id: evt.id,
-          title: evt.title,
-          type: 'event',
-          startMin: sH * 60 + sM,
-          endMin: eH * 60 + eM,
-          timeText: `${evt.start_time} - ${evt.end_time}`
-        });
-      });
-
-      this.tasks.filter(t => t.is_today && t.time_slot).forEach(task => {
-        const [start, end] = task.time_slot.split(' - ');
-        if (start && end) {
-          const [sH, sM] = start.split(':').map(Number);
-          const [eH, eM] = end.split(':').map(Number);
-          allBlocks.push({
-            id: task.id,
-            title: task.title,
-            type: 'task',
-            quadrant: task.quadrant,
+        const evtDate = evt.date || '2026-10-29';
+        if (evtDate === targetDateStr) {
+          const [sH, sM] = evt.start_time.split(':').map(Number);
+          const [eH, eM] = evt.end_time.split(':').map(Number);
+          dayBlocks.push({
+            id: evt.id,
+            title: evt.title,
+            type: 'event',
             startMin: sH * 60 + sM,
             endMin: eH * 60 + eM,
-            timeText: `${start} - ${end}`
+            timeText: `${evt.start_time} - ${evt.end_time}`
           });
         }
       });
 
-      // Sort by start time
-      allBlocks.sort((a, b) => a.startMin - b.startMin);
+      this.tasks.forEach(task => {
+        const taskDate = task.due_at ? task.due_at.slice(0, 10) : '2026-10-29';
+        if (taskDate === targetDateStr && task.time_slot) {
+          const [start, end] = task.time_slot.split(' - ');
+          if (start && end) {
+            const [sH, sM] = start.split(':').map(Number);
+            const [eH, eM] = end.split(':').map(Number);
+            dayBlocks.push({
+              id: task.id,
+              title: task.title,
+              type: 'task',
+              quadrant: task.quadrant,
+              startMin: sH * 60 + sM,
+              endMin: eH * 60 + eM,
+              timeText: `${start} - ${end}`
+            });
+          }
+        }
+      });
 
-      // Check Collisions (Audit Fix #5: side-by-side slotting)
-      for (let i = 0; i < allBlocks.length; i++) {
-        const curr = allBlocks[i];
+      dayBlocks.sort((a, b) => a.startMin - b.startMin);
+
+      // Check Collision side-by-side positioning
+      for (let i = 0; i < dayBlocks.length; i++) {
+        const curr = dayBlocks[i];
         const overlapping = [curr];
 
-        for (let j = 0; j < allBlocks.length; j++) {
+        for (let j = 0; j < dayBlocks.length; j++) {
           if (i !== j) {
-            const other = allBlocks[j];
+            const other = dayBlocks[j];
             if (Math.max(curr.startMin, other.startMin) < Math.min(curr.endMin, other.endMin)) {
               overlapping.push(other);
             }
@@ -914,7 +1029,6 @@
           block.style.top = `${topOffset}px`;
           block.style.height = `${heightPx}px`;
 
-          // Apply collision side-by-side positioning
           if (isCollision) {
             const widthPct = (100 / colCount) - 2;
             const leftPct = (100 / colCount) * colIndex + 1;
@@ -932,6 +1046,233 @@
           cell.appendChild(block);
         }
       }
+    },
+
+    renderCalendarWeekView(board) {
+      const days = this.getWeekDays(this.calendarDate);
+      const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21];
+      const lang = this.user.locale || 'ru';
+      const dayNames = lang === 'en'
+        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+      const todayStr = this.formatDateISO(new Date());
+
+      let html = `
+        <div class="calendar-week-container">
+          <table class="calendar-week-table">
+            <thead>
+              <tr>
+                <th class="cal-week-time-col"></th>
+      `;
+
+      days.forEach((day, idx) => {
+        const isToday = this.formatDateISO(day) === todayStr;
+        html += `
+          <th class="cal-week-header-cell">
+            <div class="cal-week-day-name">${dayNames[idx]}</div>
+            <div class="cal-week-day-num ${isToday ? 'is-today' : ''}">${day.getDate()}</div>
+          </th>
+        `;
+      });
+
+      html += `
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      hours.forEach(hour => {
+        const formattedHour = `${hour.toString().padStart(2, '0')}:00`;
+        html += `
+          <tr>
+            <td class="cal-week-time-col">${formattedHour}</td>
+        `;
+
+        days.forEach(day => {
+          const dateStr = this.formatDateISO(day);
+          html += `<td class="cal-week-slot-cell" id="week-cell-${dateStr}-${hour}"></td>`;
+        });
+
+        html += `</tr>`;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      board.innerHTML = html;
+
+      // Populate tasks & events for all 7 days
+      days.forEach(day => {
+        const dateStr = this.formatDateISO(day);
+
+        this.tasks.forEach(task => {
+          const tDate = task.due_at ? task.due_at.slice(0, 10) : '2026-10-29';
+          if (tDate === dateStr && task.time_slot) {
+            const [start, end] = task.time_slot.split(' - ');
+            if (start) {
+              const [sH, sM] = start.split(':').map(Number);
+              const cell = document.getElementById(`week-cell-${dateStr}-${sH}`);
+              if (cell) {
+                const block = document.createElement('div');
+                block.className = `calendar-block ${this.planStatus === 'draft' ? 'block-draft' : 'block-task'}`;
+                block.style.top = `${Math.round((sM / 60) * 48)}px`;
+                block.style.height = `38px`;
+                block.style.left = '2px';
+                block.style.right = '2px';
+                block.innerHTML = `
+                  <div class="cal-block-title" style="font-size:10.5px;">${this.escapeHTML(task.title)}</div>
+                  <div class="cal-block-time" style="font-size:9.5px;">${task.time_slot}</div>
+                `;
+                block.addEventListener('click', () => AppState.openEditTaskModal(task.id));
+                cell.appendChild(block);
+              }
+            }
+          }
+        });
+
+        this.events.forEach(evt => {
+          const eDate = evt.date || '2026-10-29';
+          if (eDate === dateStr && evt.start_time) {
+            const [sH, sM] = evt.start_time.split(':').map(Number);
+            const cell = document.getElementById(`week-cell-${dateStr}-${sH}`);
+            if (cell) {
+              const block = document.createElement('div');
+              block.className = 'calendar-block block-busy';
+              block.style.top = `${Math.round((sM / 60) * 48)}px`;
+              block.style.height = `38px`;
+              block.style.left = '2px';
+              block.style.right = '2px';
+              block.innerHTML = `
+                <div class="cal-block-title" style="font-size:10.5px;">${this.escapeHTML(evt.title)}</div>
+                <div class="cal-block-time" style="font-size:9.5px;">${evt.start_time} - ${evt.end_time}</div>
+              `;
+              cell.appendChild(block);
+            }
+          }
+        });
+      });
+    },
+
+    renderCalendarMonthView(board) {
+      const year = this.calendarDate.getFullYear();
+      const month = this.calendarDate.getMonth();
+      const lang = this.user.locale || 'ru';
+      const dayNames = lang === 'en'
+        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        : ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+      const todayStr = this.formatDateISO(new Date());
+
+      const firstDay = new Date(year, month, 1);
+      const dayOfWeek = (firstDay.getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      let html = `
+        <div class="calendar-month-container">
+          <div class="calendar-month-header">
+            ${dayNames.map(d => `<div class="cal-month-header-cell">${d}</div>`).join('')}
+          </div>
+          <div class="calendar-month-grid">
+      `;
+
+      for (let i = dayOfWeek - 1; i >= 0; i--) {
+        const dNum = daysInPrevMonth - i;
+        const prevDate = new Date(year, month - 1, dNum);
+        const dateStr = this.formatDateISO(prevDate);
+        html += this.buildMonthCellHTML(dateStr, dNum, true, false);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const currDate = new Date(year, month, d);
+        const dateStr = this.formatDateISO(currDate);
+        const isToday = dateStr === todayStr;
+        html += this.buildMonthCellHTML(dateStr, d, false, isToday);
+      }
+
+      const totalCells = dayOfWeek + daysInMonth;
+      const nextDaysNeeded = totalCells <= 35 ? 35 - totalCells : 42 - totalCells;
+      for (let n = 1; n <= nextDaysNeeded; n++) {
+        const nextDate = new Date(year, month + 1, n);
+        const dateStr = this.formatDateISO(nextDate);
+        html += this.buildMonthCellHTML(dateStr, n, true, false);
+      }
+
+      html += `
+          </div>
+        </div>
+      `;
+
+      board.innerHTML = html;
+
+      board.querySelectorAll('.cal-month-day-cell').forEach(cell => {
+        cell.addEventListener('click', () => {
+          const dateStr = cell.dataset.date;
+          if (dateStr) {
+            AppState.calendarDate = new Date(dateStr + 'T10:00:00');
+            AppState.setCalendarView('day');
+          }
+        });
+      });
+    },
+
+    buildMonthCellHTML(dateStr, dayNum, isOtherMonth, isToday) {
+      const items = [];
+
+      this.events.forEach(evt => {
+        const eDate = evt.date || '2026-10-29';
+        if (eDate === dateStr) {
+          items.push({
+            type: 'event',
+            title: evt.title,
+            time: evt.start_time
+          });
+        }
+      });
+
+      this.tasks.forEach(task => {
+        const tDate = task.due_at ? task.due_at.slice(0, 10) : '2026-10-29';
+        if (tDate === dateStr) {
+          items.push({
+            type: 'task',
+            title: task.title,
+            quadrant: task.quadrant,
+            time: task.time_slot ? task.time_slot.split(' - ')[0] : ''
+          });
+        }
+      });
+
+      const maxVisible = 2;
+      const visibleItems = items.slice(0, maxVisible);
+      const remaining = items.length - maxVisible;
+
+      let chipsHTML = '';
+      visibleItems.forEach(item => {
+        if (item.type === 'event') {
+          chipsHTML += `<div class="cal-month-chip chip-busy" title="${this.escapeHTML(item.title)}">${item.time || ''} ${this.escapeHTML(item.title)}</div>`;
+        } else {
+          chipsHTML += `<div class="cal-month-chip chip-task-q${item.quadrant}" title="${this.escapeHTML(item.title)}">Q${item.quadrant} ${this.escapeHTML(item.title)}</div>`;
+        }
+      });
+
+      if (remaining > 0) {
+        chipsHTML += `<div class="cal-month-more">+${remaining} ${I18N[this.user.locale].more_tasks}</div>`;
+      }
+
+      return `
+        <div class="cal-month-day-cell ${isOtherMonth ? 'other-month' : ''}" data-date="${dateStr}">
+          <div class="cal-month-cell-header">
+            <span class="cal-month-cell-num ${isToday ? 'is-today' : ''}">${dayNum}</span>
+          </div>
+          <div class="cal-month-task-list">
+            ${chipsHTML}
+          </div>
+        </div>
+      `;
     },
 
     /* ========================================================================
@@ -1625,36 +1966,38 @@
       AppState.showStatusToast(AppState.user.locale === 'en' ? 'Schedule refreshed' : 'Расписание мягко обновлено');
     });
 
+    // Calendar Navigation & Views
+    document.getElementById('cal-prev-btn')?.addEventListener('click', () => AppState.prevCalendarPeriod());
+    document.getElementById('cal-next-btn')?.addEventListener('click', () => AppState.nextCalendarPeriod());
+    document.getElementById('cal-today-btn')?.addEventListener('click', () => AppState.todayCalendarPeriod());
+
+    document.getElementById('cal-view-day-btn')?.addEventListener('click', () => AppState.setCalendarView('day'));
+    document.getElementById('cal-view-week-btn')?.addEventListener('click', () => AppState.setCalendarView('week'));
+    document.getElementById('cal-view-month-btn')?.addEventListener('click', () => AppState.setCalendarView('month'));
+
     // Add Busy Interval Modal
     const eventModal = document.getElementById('add-event-modal-overlay');
-    document.getElementById('add-busy-event-btn')?.addEventListener('click', () => eventModal?.classList.remove('hidden'));
+    document.getElementById('add-busy-event-btn')?.addEventListener('click', () => {
+      eventModal?.classList.remove('hidden');
+      const dateInput = document.getElementById('event-date-input');
+      if (dateInput) {
+        dateInput.value = AppState.formatDateISO(AppState.calendarDate);
+      }
+    });
     document.getElementById('close-event-modal')?.addEventListener('click', () => eventModal?.classList.add('hidden'));
     document.getElementById('cancel-event-btn')?.addEventListener('click', () => eventModal?.classList.add('hidden'));
     document.getElementById('save-event-btn')?.addEventListener('click', () => {
       const title = document.getElementById('event-title-input').value.trim();
+      const date = document.getElementById('event-date-input')?.value || AppState.formatDateISO(AppState.calendarDate);
       const start = document.getElementById('event-start-time').value;
       const end = document.getElementById('event-end-time').value;
       if (!title) return;
 
-      AppState.events.push({ id: 'evt-' + Date.now(), title, start_time: start, end_time: end });
+      AppState.events.push({ id: 'evt-' + Date.now(), title, date, start_time: start, end_time: end });
       AppState.save();
       AppState.renderCalendarView();
       eventModal?.classList.add('hidden');
       document.getElementById('event-title-input').value = '';
-    });
-
-    document.getElementById('cal-view-day-btn')?.addEventListener('click', (e) => {
-      AppState.calendarView = 'day';
-      e.target.classList.add('active');
-      document.getElementById('cal-view-week-btn')?.classList.remove('active');
-      AppState.renderCalendarView();
-    });
-
-    document.getElementById('cal-view-week-btn')?.addEventListener('click', (e) => {
-      AppState.calendarView = 'week';
-      e.target.classList.add('active');
-      document.getElementById('cal-view-day-btn')?.classList.remove('active');
-      AppState.renderCalendarView();
     });
 
     // Matrix Mobile Tabs (Audit Fix #4)

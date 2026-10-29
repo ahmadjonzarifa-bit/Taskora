@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="system">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Taskora — Осознанный AI-менеджер времени и баланса</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- App Layout -->
+  <div id="app" class="app-layout">
+    
+    <!-- Desktop Left Sidebar -->
+    <aside class="sidebar" aria-label="Основная навигация">
+      <div class="sidebar-brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect width="24" height="24" rx="7" fill="var(--primary)"/>
+            <path d="M7 12.5L10.5 16L17.5 8" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="brand-name">Taskora</span>
+        <span class="brand-zen-tag" data-i18n="zen_tag">Zen</span>
+      </div>
+
+      <nav class="nav-menu" role="tablist">
+        <button class="nav-item active" data-tab="today" role="tab" aria-selected="true" title="Сегодня">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+          <span class="nav-label" data-i18n="nav_today">Сегодня</span>
+        </button>
+
+        <button class="nav-item" data-tab="matrix" role="tab" aria-selected="false" title="Матрица 2×2">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7.5" height="7.5" rx="2"/>
+            <rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/>
+            <rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/>
+            <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/>
+          </svg>
+          <span class="nav-label" data-i18n="nav_matrix">Матрица</span>
+        </button>
+
+        <button class="nav-item" data-tab="calendar" role="tab" aria-selected="false" title="Календарь">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="3"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span class="nav-label" data-i18n="nav_calendar">Календарь</span>
+        </button>
+
+        <button class="nav-item" data-tab="profile" role="tab" aria-selected="false" title="Баланс и Профиль">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
+          </svg>
+          <span class="nav-label" data-i18n="nav_profile">Профиль</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-balance-card">
+        <div class="balance-card-header">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span class="balance-card-title" data-i18n="balance_title">Work/Life Баланс</span>
+        </div>
+        <div class="balance-mini-metric">
+          <span class="metric-val" id="sidebar-balance-score">88%</span>
+          <span class="metric-desc" data-i18n="balance_calm">День в гармонии</span>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="sidebar-ai-btn" class="ai-zen-btn" title="AI Помощник">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/>
+          </svg>
+          <span class="ai-pill-text" data-i18n="ask_ai">AI Ассистент</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="mobile-brand">
+            <div class="brand-logo" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <rect width="24" height="24" rx="7" fill="var(--primary)"/>
+                <path d="M7 12.5L10.5 16L17.5 8" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <span class="brand-name">Taskora</span>
+          </div>
+          <div class="header-date-group">
+            <div class="header-date" id="current-date-display">...</div>
+            <div class="header-zen-status">
+              <span class="zen-status-dot"></span>
+              <span class="header-zen-text" id="zen-daily-phrase" data-i18n="zen_phrase">Фокус на важном без спешки</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-center">
+          <div class="quick-input-bar">
+            <svg class="quick-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="quick-task-input" placeholder="Добавить дело или мысль..." data-i18n-placeholder="add_placeholder">
+            <button id="quick-photo-btn" class="quick-tool-btn" title="Распознать фото или скриншот" data-i18n-title="scan_photo">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </button>
+            <button id="quick-add-btn" class="btn-primary-xs" data-i18n="add">
+              Добавить
+            </button>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="header-ai-chat-btn" class="topbar-zen-btn" title="AI Диалог">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/>
+            </svg>
+            <span class="desktop-only-text" data-i18n="ai_assistant">AI Ассистент</span>
+          </button>
+          <div class="quick-user-avatar" id="topbar-avatar" title="Профиль" data-tab="profile">
+            VU
+          </div>
+        </div>
+      </header>
+
+      <!-- VIEW 1: TODAY (Сегодня) -->
+      <section id="view-today" class="view-panel active">
+        <div class="view-content-container">
+          
+          <!-- Compact Zen Progress Header (Resolves Fold Issue) -->
+          <div class="zen-progress-bar-card">
+            <div class="zen-progress-main">
+              <div class="zen-progress-info">
+                <span class="zen-progress-label" id="today-counter">0 из 0 выполнено</span>
+                <span class="zen-progress-note" id="today-progress-subtitle">План составлен осознанно</span>
+              </div>
+              <div class="zen-progress-badge">
+                <span class="badge-accent-dot"></span>
+                <span id="balance-badge-label" data-i18n="balance_good">Баланс в норме</span>
+              </div>
+            </div>
+            <div class="zen-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <div class="zen-fill" id="today-progress-fill" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Section: NOW (Сейчас) -->
+          <div class="now-section" id="now-section">
+            <div class="section-label-row">
+              <span class="now-badge">
+                <span class="live-dot"></span>
+                <span data-i18n="now_label">ТЕКУЩИЙ ФОКУС</span>
+              </span>
+              <span class="section-subtext" data-i18n="now_subtext">Одно главное дело без мультизадачности</span>
+            </div>
+            <div id="now-task-container">
+              <!-- Dynamically populated NOW task -->
+            </div>
+          </div>
+
+          <!-- Section: NEXT (Далее) -->
+          <div class="next-section">
+            <div class="section-label-row">
+              <h3 class="section-subtitle" data-i18n="next_label">СПИСОК ДЕЛ</h3>
+              <div class="filter-actions">
+                <span class="items-count-badge" id="next-tasks-count">0 задач</span>
+              </div>
+            </div>
+            <div class="task-list" id="today-task-list">
+              <!-- Dynamically populated task cards -->
+            </div>
+          </div>
+
+          <!-- Section: COMPLETED (Выполнено) -->
+          <div class="completed-section" id="completed-section">
+            <details class="completed-accordion" id="completed-accordion">
+              <summary class="completed-summary">
+                <svg class="summary-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+                <span data-i18n="completed_label">Завершённые задачи</span>
+                <span class="completed-badge" id="completed-count">0</span>
+              </summary>
+              <div class="task-list completed-list" id="completed-task-list">
+                <!-- Completed tasks -->
+              </div>
+            </details>
+          </div>
+
+          <!-- Empty State for Today -->
+          <div class="empty-state hidden" id="today-empty-state">
+            <div class="empty-icon-wrap">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-dim)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9"/>
+                <path d="M12 7v5l3 3"/>
+              </svg>
+            </div>
+            <h4 class="empty-title" data-i18n="empty_today">Пока всё чисто и спокойно</h4>
+            <p class="empty-desc" data-i18n="empty_today_desc">Добавьте задачу обычной фразой или позвольте AI распределить план дня</p>
+            <button class="btn-primary open-create-modal-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span data-i18n="add_task">Добавить задачу</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 2: MATRIX (Матрица Эйзенхауэра 2×2) -->
+      <section id="view-matrix" class="view-panel">
+        <div class="view-content-container">
+          <div class="view-header-row">
+            <div>
+              <h2 class="section-title" data-i18n="matrix_title">Матрица Эйзенхауэра 2×2</h2>
+              <p class="view-subtitle" data-i18n="matrix_subtitle">Гармоничное разделение на срочное и стратегически важное</p>
+            </div>
+            
+            <!-- Mobile Quadrant Switcher Tabs (Preserves 2x2 Concept) -->
+            <div class="matrix-mobile-tabs" id="matrix-mobile-tabs">
+              <button class="m-tab active" data-q-filter="all">2×2</button>
+              <button class="m-tab" data-q-filter="1">I</button>
+              <button class="m-tab" data-q-filter="2">II</button>
+              <button class="m-tab" data-q-filter="3">III</button>
+              <button class="m-tab" data-q-filter="4">IV</button>
+            </div>
+
+            <button class="btn-secondary-sm desktop-only-btn" id="matrix-ai-rebalance-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/>
+              </svg>
+              <span data-i18n="ai_rebalance">AI Балансировка</span>
+            </button>
+          </div>
+
+          <!-- 4 Quadrants Grid -->
+          <div class="matrix-grid" id="matrix-grid">
+            
+            <!-- Quadrant 1: Сделать сейчас / Do now -->
+            <div class="quadrant-card q1" data-quadrant="1">
+              <div class="quadrant-header">
+                <div class="quadrant-tag">
+                  <span class="quadrant-num">I</span>
+                  <span class="quadrant-name" data-i18n="q1_name">Сделать сейчас</span>
+                </div>
+                <button class="quadrant-add-btn" data-quadrant="1" title="Добавить в квадрант I">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="quadrant-meta" data-i18n="q1_meta">Срочно и Важно (Дедлайны)</div>
+              <div class="quadrant-dropzone" data-quadrant="1" id="q1-dropzone">
+                <!-- Q1 tasks -->
+              </div>
+            </div>
+
+            <!-- Quadrant 2: Запланировать / Plan -->
+            <div class="quadrant-card q2" data-quadrant="2">
+              <div class="quadrant-header">
+                <div class="quadrant-tag">
+                  <span class="quadrant-num">II</span>
+                  <span class="quadrant-name" data-i18n="q2_name">Стратегия и Баланс</span>
+                </div>
+                <button class="quadrant-add-btn" data-quadrant="2" title="Добавить в квадрант II">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="quadrant-meta" data-i18n="q2_meta">Не срочно, но Важно (Спорт, развитие, отдых)</div>
+              <div class="quadrant-dropzone" data-quadrant="2" id="q2-dropzone">
+                <!-- Q2 tasks -->
+              </div>
+            </div>
+
+            <!-- Quadrant 3: Сократить / Delegate -->
+            <div class="quadrant-card q3" data-quadrant="3">
+              <div class="quadrant-header">
+                <div class="quadrant-tag">
+                  <span class="quadrant-num">III</span>
+                  <span class="quadrant-name" data-i18n="q3_name">Сократить</span>
+                </div>
+                <button class="quadrant-add-btn" data-quadrant="3" title="Добавить в квадрант III">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="quadrant-meta" data-i18n="q3_meta">Срочно, но Менее важно (Рутина, звонки)</div>
+              <div class="quadrant-dropzone" data-quadrant="3" id="q3-dropzone">
+                <!-- Q3 tasks -->
+              </div>
+            </div>
+
+            <!-- Quadrant 4: Убрать / Drop -->
+            <div class="quadrant-card q4" data-quadrant="4">
+              <div class="quadrant-header">
+                <div class="quadrant-tag">
+                  <span class="quadrant-num">IV</span>
+                  <span class="quadrant-name" data-i18n="q4_name">Убрать шум</span>
+                </div>
+                <button class="quadrant-add-btn" data-quadrant="4" title="Добавить в квадрант IV">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
+              </div>
+              <div class="quadrant-meta" data-i18n="q4_meta">Не срочно и Не важно (Пожиратели времени)</div>
+              <div class="quadrant-dropzone" data-quadrant="4" id="q4-dropzone">
+                <!-- Q4 tasks -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: CALENDAR (Календарь и Осознанный План) -->
+      <section id="view-calendar" class="view-panel">
+        <div class="view-content-container">
+          
+          <div class="calendar-top-controls">
+            <div class="calendar-title-group">
+              <h2 class="section-title" data-i18n="calendar_title">Календарь</h2>
+              <span class="calendar-range-label" id="calendar-current-label">Сегодня</span>
+            </div>
+
+            <div class="calendar-actions-row">
+              <div class="view-switch-tabs">
+                <button class="view-tab-btn active" id="cal-view-day-btn" data-i18n="cal_day">День</button>
+                <button class="view-tab-btn" id="cal-view-week-btn" data-i18n="cal_week">Неделя</button>
+              </div>
+
+              <button id="add-busy-event-btn" class="btn-secondary-sm" data-i18n="add_event">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <span data-i18n="add_event_text">Занятость</span>
+              </button>
+
+              <button id="confirm-plan-btn" class="btn-zen-accent" data-i18n="confirm_plan">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Подтвердить план</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Conflict Warning Banner -->
+          <div id="calendar-conflict-banner" class="conflict-banner hidden">
+            <div class="conflict-content">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <span id="conflict-text">Обнаружен конфликт расписания!</span>
+            </div>
+            <button id="resolve-conflict-btn" class="btn-xs btn-outline-danger" data-i18n="fix_schedule">
+              Авто-разрешение
+            </button>
+          </div>
+
+          <!-- Draft Plan Info Banner -->
+          <div id="calendar-draft-banner" class="draft-banner">
+            <div class="draft-badge">
+              <span class="draft-dot"></span>
+              <span data-i18n="ai_draft_banner">Черновик расписания — свободные буферы сохранены для отдыха</span>
+            </div>
+            <button id="replan-day-btn" class="btn-ghost-xs" data-i18n="replan_btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+              </svg>
+              <span>Пересчитать</span>
+            </button>
+          </div>
+
+          <!-- Calendar Timeline Board (Collision-Free Grid) -->
+          <div class="calendar-board" id="calendar-board">
+            <!-- Dynamically rendered hours & collision-split blocks -->
+          </div>
+
+        </div>
+      </section>
+
+      <!-- VIEW 4: PROFILE & ZEN BALANCE (Профиль) -->
+      <section id="view-profile" class="view-panel">
+        <div class="view-content-container max-w-profile">
+          
+          <!-- User Profile Card -->
+          <div class="profile-header-card">
+            <div class="profile-user-info">
+              <div class="profile-avatar-large" id="profile-avatar-large">VU</div>
+              <div>
+                <h2 class="profile-name" id="profile-display-name">Осознанный пользователь</h2>
+                <p class="profile-email" id="profile-display-email">user@taskora.uz</p>
+                <div class="profile-meta-badges">
+                  <span class="profile-badge">Zen Pro</span>
+                  <span class="profile-badge-calm">Баланс активен</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn-secondary-sm" id="edit-profile-btn" data-i18n="edit">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+              </svg>
+              <span>Изменить</span>
+            </button>
+          </div>
+
+          <!-- Mindful Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label" data-i18n="stat_done_week">Выполнено за неделю</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+                </svg>
+              </div>
+              <div class="stat-value" id="stat-weekly-count">14</div>
+              <div class="stat-mini-chart" id="weekly-mini-chart">
+                <!-- 7 days mini bar chart -->
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label" data-i18n="stat_streak">Серия осознанности</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                </svg>
+              </div>
+              <div class="stat-value" id="stat-streak-count">5 дней</div>
+              <p class="stat-note" data-i18n="streak_safe_note">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline; vertical-align:middle; margin-right:3px;">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+                День отдыха защищает серию без штрафов
+              </p>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <span class="stat-label" data-i18n="stat_xp">Фокус и Гармония</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+              </div>
+              <div class="stat-value" id="stat-xp-count">380 XP</div>
+              <div class="xp-progress-bar">
+                <div class="xp-fill" style="width: 76%;"></div>
+              </div>
+              <p class="stat-note">Уровень 3: Мастер равновесия</p>
+            </div>
+          </div>
+
+          <!-- Settings Groups -->
+          <div class="settings-group">
+            <h3 class="settings-group-title" data-i18n="settings_preferences">Настройки интерфейса</h3>
+
+            <!-- Theme Picker -->
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title" data-i18n="theme_label">Тема оформления</span>
+                <span class="settings-row-desc" data-i18n="theme_desc">Глубокая тёмная, чистая светлая или авто</span>
+              </div>
+              <div class="segmented-control" id="theme-selector">
+                <button class="segment-btn" data-theme-val="light" data-i18n="theme_light">Светлая</button>
+                <button class="segment-btn" data-theme-val="dark" data-i18n="theme_dark">Тёмная</button>
+                <button class="segment-btn active" data-theme-val="system" data-i18n="theme_system">Системная</button>
+              </div>
+            </div>
+
+            <!-- Language Picker -->
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title" data-i18n="lang_label">Язык приложения</span>
+                <span class="settings-row-desc" data-i18n="lang_desc">Мгновенный перевод интерфейса</span>
+              </div>
+              <div class="segmented-control" id="lang-selector">
+                <button class="segment-btn active" data-lang-val="ru">Русский</button>
+                <button class="segment-btn" data-lang-val="en">English</button>
+              </div>
+            </div>
+
+            <!-- AI Request Balance -->
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title" data-i18n="ai_limits">AI-запросы на день</span>
+                <span class="settings-row-desc" id="ai-quota-text">Использовано 4 из 20 запросов</span>
+              </div>
+              <span class="quota-pill" id="ai-quota-badge">16 осталось</span>
+            </div>
+
+            <!-- Google Calendar Sync -->
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title">Google Calendar</span>
+                <span class="settings-row-desc" data-i18n="gcal_desc">Импорт внешних встреч и занятости</span>
+              </div>
+              <button class="btn-secondary-sm" id="gcal-toggle-btn">
+                <span id="gcal-status-text" data-i18n="connect">Подключить</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Data & Privacy -->
+          <div class="settings-group danger-group">
+            <h3 class="settings-group-title" data-i18n="data_privacy">Данные и приватность</h3>
+            
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title" data-i18n="export_json">Резервная копия</span>
+                <span class="settings-row-desc" data-i18n="export_desc">Скачать все задачи и расписание в формате JSON</span>
+              </div>
+              <button class="btn-secondary-sm" id="export-data-btn" data-i18n="download_json">Скачать JSON</button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title" data-i18n="reset_samples">Сброс к демо</span>
+                <span class="settings-row-desc" data-i18n="reset_samples_desc">Восстановить демонстрационные задачи и гармоничный день</span>
+              </div>
+              <button class="btn-ghost-sm" id="reset-samples-btn" data-i18n="restore_demo">Сбросить</button>
+            </div>
+
+            <div class="settings-row">
+              <div class="settings-label-col">
+                <span class="settings-row-title text-danger" data-i18n="delete_account">Очистить аккаунт</span>
+                <span class="settings-row-desc" data-i18n="delete_account_desc">Безвозвратное удаление всех локальных данных</span>
+              </div>
+              <button class="btn-danger-sm" id="delete-account-btn" data-i18n="delete_all">Удалить всё</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Mobile Bottom Navigation Bar (4 tabs + Central Ambient FAB) -->
+    <nav class="mobile-bottom-bar" aria-label="Мобильная навигация">
+      <button class="mob-tab active" data-tab="today">
+        <svg class="mob-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+        <span class="mob-label" data-i18n="nav_today">Сегодня</span>
+      </button>
+
+      <button class="mob-tab" data-tab="matrix">
+        <svg class="mob-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7.5" height="7.5" rx="1.5"/>
+          <rect x="13.5" y="3" width="7.5" height="7.5" rx="1.5"/>
+          <rect x="3" y="13.5" width="7.5" height="7.5" rx="1.5"/>
+          <rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1.5"/>
+        </svg>
+        <span class="mob-label" data-i18n="nav_matrix">Матрица</span>
+      </button>
+
+      <!-- Central Refined FAB -->
+      <div class="fab-wrapper">
+        <button id="main-fab" class="central-fab" aria-label="Создать задачу" title="Создать задачу">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+      </div>
+
+      <button class="mob-tab" data-tab="calendar">
+        <svg class="mob-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="3"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span class="mob-label" data-i18n="nav_calendar">Календарь</span>
+      </button>
+
+      <button class="mob-tab" data-tab="profile">
+        <svg class="mob-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
+        </svg>
+        <span class="mob-label" data-i18n="nav_profile">Профиль</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- ==================== MODALS & BOTTOM SHEETS ==================== -->
+
+  <!-- Modal 1: Create Task Bottom Sheet -->
+  <div id="create-modal-overlay" class="modal-overlay hidden">
+    <div class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="create-sheet-title">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="sheet-header">
+        <h3 id="create-sheet-title" class="sheet-title" data-i18n="create_title">Новая задача</h3>
+        <button class="modal-close-btn" id="close-create-modal" aria-label="Закрыть">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <div class="input-with-action">
+          <textarea id="create-task-text" class="form-textarea" rows="3" placeholder="Что нужно сделать? Напишите одно дело или список через запятую..." data-i18n-placeholder="create_input_hint" autofocus></textarea>
+          <div class="photo-scan-bar">
+            <button id="sheet-photo-scan-btn" class="photo-pill-btn" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              <span data-i18n="scan_photo">Распознать фото</span>
+            </button>
+            <span class="char-hint" data-i18n="ai_auto_extract">AI сам подберёт дедлайн и баланс</span>
+          </div>
+        </div>
+
+        <!-- Optional Parameter Chips -->
+        <div class="chips-row">
+          <div class="chip-item">
+            <label class="chip-label" data-i18n="chip_due">Срок:</label>
+            <input type="date" id="create-due-date" class="chip-input">
+            <input type="time" id="create-due-time" class="chip-input" value="12:00">
+          </div>
+
+          <div class="chip-item">
+            <label class="chip-label" data-i18n="chip_duration">Длительность:</label>
+            <select id="create-duration" class="chip-select">
+              <option value="30">30 мин</option>
+              <option value="60" selected>1 час</option>
+              <option value="90">1.5 часа</option>
+              <option value="120">2 часа</option>
+            </select>
+          </div>
+
+          <div class="chip-item">
+            <label class="chip-label" data-i18n="chip_quadrant">Квадрант:</label>
+            <select id="create-quadrant" class="chip-select">
+              <option value="0" selected data-i18n="quadrant_auto">Осознанный авто-выбор</option>
+              <option value="1">I — Сделать сейчас</option>
+              <option value="2">II — Стратегия и баланс</option>
+              <option value="3">III — Сократить</option>
+              <option value="4">IV — Убрать шум</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="sheet-footer">
+        <button id="cancel-create-btn" class="btn-ghost" data-i18n="cancel">Отмена</button>
+        <button id="submit-create-btn" class="btn-primary" data-i18n="add">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 2: AI Draft Review Sheet -->
+  <div id="ai-draft-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-dialog max-w-dialog" role="dialog" aria-modal="true" aria-labelledby="ai-draft-title">
+      <div class="modal-header">
+        <div class="ai-draft-badge-row">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/>
+          </svg>
+          <h3 id="ai-draft-title" class="modal-title" data-i18n="ai_draft">Черновик от AI</h3>
+          <span class="draft-task-badge" id="ai-draft-count">3 задачи</span>
+        </div>
+        <button class="modal-close-btn" id="close-ai-draft-modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <p class="modal-subtitle" data-i18n="ai_draft_desc">AI распознал задачи. Проверьте детали перед включением в расписание дня.</p>
+
+      <!-- Clarification question alert -->
+      <div id="ai-clarification-box" class="clarification-card hidden">
+        <div class="clarification-header">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span class="clarification-title" id="clarification-question-text">AI уточняет время:</span>
+        </div>
+        <div class="clarification-options" id="clarification-options-container">
+          <!-- Option chips -->
+        </div>
+      </div>
+
+      <!-- Extracted Tasks Checklist -->
+      <div class="ai-draft-list" id="ai-draft-items-list">
+        <!-- Dynamically injected draft tasks -->
+      </div>
+
+      <div class="modal-footer">
+        <button id="reject-ai-draft-btn" class="btn-ghost" data-i18n="reject">Отклонить</button>
+        <button id="accept-ai-draft-btn" class="btn-zen-accent" data-i18n="accept_selected">Добавить выбранные</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 3: Task Details / Edit Modal -->
+  <div id="edit-task-modal-overlay" class="modal-overlay hidden">
+    <div class="bottom-sheet" role="dialog" aria-modal="true">
+      <div class="sheet-drag-handle"></div>
+      
+      <div class="sheet-header">
+        <h3 class="sheet-title" data-i18n="task_details">Детали задачи</h3>
+        <button class="modal-close-btn" id="close-edit-modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sheet-body">
+        <input type="hidden" id="edit-task-id">
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="task_title_label">Название задачи</label>
+          <input type="text" id="edit-task-title" class="form-input" placeholder="Название задачи">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="task_note_label">Заметка / Описание</label>
+          <textarea id="edit-task-note" class="form-textarea" rows="2" placeholder="Дополнительные детали или ссылки..."></textarea>
+        </div>
+
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="chip_due">Срок и время</label>
+            <input type="datetime-local" id="edit-task-datetime" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="chip_duration">Длительность</label>
+            <select id="edit-task-duration" class="form-select">
+              <option value="15">15 мин</option>
+              <option value="30">30 мин</option>
+              <option value="45">45 мин</option>
+              <option value="60">1 час</option>
+              <option value="90">1.5 часа</option>
+              <option value="120">2 часа</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" data-i18n="chip_quadrant">Квадрант матрицы</label>
+          <select id="edit-task-quadrant" class="form-select">
+            <option value="1">I — Сделать сейчас (Срочно / Важно)</option>
+            <option value="2">II — Стратегия и баланс (Не срочно / Важно)</option>
+            <option value="3">III — Сократить (Срочно / Не важно)</option>
+            <option value="4">IV — Убрать шум (Не срочно / Не важно)</option>
+          </select>
+        </div>
+
+        <!-- AI explanation for this quadrant -->
+        <div class="ai-why-box" id="edit-task-why-box">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span class="ai-why-text" id="edit-task-why-text">Определено на основе дедлайна и приоритета.</span>
+        </div>
+
+        <!-- Postpone Actions Quick Bar -->
+        <div class="postpone-row">
+          <span class="postpone-label" data-i18n="postpone">Осознанный перенос:</span>
+          <button type="button" class="btn-chip" id="postpone-today-btn" data-i18n="postpone_today">На сегодня</button>
+          <button type="button" class="btn-chip" id="postpone-tomorrow-btn" data-i18n="postpone_tomorrow">На завтра</button>
+          <button type="button" class="btn-chip" id="postpone-weekend-btn" data-i18n="postpone_weekend">На выходные</button>
+        </div>
+      </div>
+
+      <div class="sheet-footer space-between">
+        <button id="delete-task-btn" class="btn-danger-ghost" data-i18n="delete">Удалить</button>
+        <div class="footer-right-actions">
+          <button id="cancel-edit-btn" class="btn-ghost" data-i18n="cancel">Отмена</button>
+          <button id="save-edit-btn" class="btn-primary" data-i18n="save">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 4: AI Assistant Drawer / Chat -->
+  <div id="ai-chat-drawer-overlay" class="drawer-overlay hidden">
+    <div class="drawer-panel" role="dialog" aria-modal="true">
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/>
+          </svg>
+          <h3 class="drawer-title" data-i18n="ai_assistant">Taskora AI</h3>
+        </div>
+        <button class="modal-close-btn" id="close-ai-chat-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div class="chat-messages" id="chat-messages-container">
+        <div class="chat-bubble ai-msg">
+          <p data-i18n="ai_welcome">Здравствуйте! Я помогу сбалансировать задачи, перестроить день без стресса или выделить время для отдыха.</p>
+        </div>
+      </div>
+
+      <!-- Quick AI Prompts -->
+      <div class="quick-prompts-container">
+        <button class="quick-prompt-btn" data-prompt="Не успеваю вторую задачу, перестрой">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/>
+          </svg>
+          <span data-i18n="prompt_delay">«Не успеваю, перестрой план мягко»</span>
+        </button>
+        <button class="quick-prompt-btn" data-prompt="Добавь завтра 2 часа на английский">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span data-i18n="prompt_english">«Найди 2ч на английский без спешки»</span>
+        </button>
+        <button class="quick-prompt-btn" data-prompt="Какие 3 задачи самые важные на сегодня?">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+          </svg>
+          <span data-i18n="prompt_priorities">«Главный фокус на сегодня»</span>
+        </button>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="chat-input-row">
+        <input type="text" id="ai-chat-text-input" class="chat-input" placeholder="Спросите AI или попросите изменить план..." data-i18n-placeholder="chat_placeholder">
+        <button id="send-ai-chat-btn" class="chat-send-btn" aria-label="Отправить">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 5: Photo / Screenshot OCR Scanner -->
+  <div id="photo-scanner-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="photo_scan_title">Сканирование списка дел</h3>
+        <button class="modal-close-btn" id="close-photo-modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="photo-dropzone" id="photo-dropzone">
+          <input type="file" id="photo-file-input" accept="image/*" class="hidden-file-input">
+          <div class="dropzone-content" id="dropzone-empty-view">
+            <div class="camera-icon-wrap">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+            </div>
+            <p class="dropzone-text" data-i18n="dropzone_prompt">Перетащите сюда фото блокнота или скриншот чата</p>
+            <button type="button" class="btn-secondary-sm" id="select-file-btn" data-i18n="select_file">Выбрать файл</button>
+          </div>
+          
+          <div class="dropzone-scanning hidden" id="dropzone-scan-view">
+            <div class="scan-radar"></div>
+            <p class="scan-status" data-i18n="ocr_scanning">AI анализирует рукописный или печатный текст...</p>
+          </div>
+        </div>
+
+        <div class="demo-samples-row">
+          <span class="sample-label" data-i18n="demo_samples">Примеры для теста:</span>
+          <button type="button" class="btn-chip" id="sample-photo-exam" data-i18n="sample_exam">Учебный план</button>
+          <button type="button" class="btn-chip" id="sample-photo-work" data-i18n="sample_work">Рабочие задачи</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Add Busy Interval / Event -->
+  <div id="add-event-modal-overlay" class="modal-overlay hidden">
+    <div class="bottom-sheet" role="dialog" aria-modal="true">
+      <div class="sheet-drag-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title" data-i18n="add_busy_interval">Занятый интервал</h3>
+        <button class="modal-close-btn" id="close-event-modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="sheet-body">
+        <div class="form-group">
+          <label class="form-label" data-i18n="event_title">Событие (пара, встреча, спорт, дорога)</label>
+          <input type="text" id="event-title-input" class="form-input" placeholder="Например: Лекция по макроэкономике">
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="start_time">Начало</label>
+            <input type="time" id="event-start-time" class="form-input" value="10:00">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="end_time">Окончание</label>
+            <input type="time" id="event-end-time" class="form-input" value="11:30">
+          </div>
+        </div>
+      </div>
+      <div class="sheet-footer">
+        <button id="cancel-event-btn" class="btn-ghost" data-i18n="cancel">Отмена</button>
+        <button id="save-event-btn" class="btn-primary" data-i18n="add">Добавить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 7: Profile Edit Modal (Replaces ugly browser window.prompt) -->
+  <div id="profile-edit-modal-overlay" class="modal-overlay hidden">
+    <div class="modal-dialog" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <h3 class="modal-title">Редактировать профиль</h3>
+        <button class="modal-close-btn" id="close-profile-modal">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Ваше имя</label>
+          <input type="text" id="edit-profile-name-input" class="form-input" placeholder="Имя">
+        </div>
+        <div class="form-group" style="margin-top:12px;">
+          <label class="form-label">Email</label>
+          <input type="email" id="edit-profile-email-input" class="form-input" placeholder="email@taskora.uz">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="cancel-profile-modal-btn" class="btn-ghost">Отмена</button>
+        <button id="save-profile-modal-btn" class="btn-primary">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popover / Tooltip: AI Quadrant Explanation (Replaces window.alert) -->
+  <div id="ai-why-popover" class="zen-popover hidden" role="tooltip">
+    <div class="popover-arrow"></div>
+    <div class="popover-content">
+      <div class="popover-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--primary-text)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z"/>
+        </svg>
+        <span>Логика AI-приоритета:</span>
+      </div>
+      <p id="ai-why-popover-text">Приоритет рассчитан с учётом дедлайна и важности.</p>
+    </div>
+  </div>
+
+  <!-- Modal 8: Onboarding 3-step Wizard -->
+  <div id="onboarding-overlay" class="modal-overlay hidden">
+    <div class="modal-dialog max-w-dialog onboarding-card" role="dialog" aria-modal="true">
+      <div class="wizard-header">
+        <span class="wizard-step-label" id="wizard-step-label">Шаг 1 из 3</span>
+        <div class="wizard-dots">
+          <span class="wizard-dot active" data-step="1"></span>
+          <span class="wizard-dot" data-step="2"></span>
+          <span class="wizard-dot" data-step="3"></span>
+        </div>
+        <button class="btn-ghost-sm" id="skip-onboarding-btn" data-i18n="skip">Пропустить</button>
+      </div>
+
+      <!-- Step 1: Login / Welcome -->
+      <div class="wizard-step-panel active" id="wizard-step-1">
+        <div class="wizard-center-hero">
+          <div class="brand-logo-large">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+              <rect width="24" height="24" rx="7" fill="var(--primary)"/>
+              <path d="M7 12.5L10.5 16L17.5 8" stroke="var(--accent)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2 class="wizard-title">Taskora</h2>
+          <p class="wizard-subtitle" data-i18n="onboarding_promise">«Скажи, что нужно сделать, — получи реалистичный и спокойный план»</p>
+        </div>
+
+        <div class="auth-buttons-col">
+          <button class="btn-auth-google" id="mock-google-login-btn">
+            <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            <span data-i18n="login_google">Войти через Google</span>
+          </button>
+          <button class="btn-secondary" id="mock-email-login-btn" data-i18n="login_email">
+            Продолжить с email
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Language & Theme -->
+      <div class="wizard-step-panel" id="wizard-step-2">
+        <h3 class="wizard-heading" data-i18n="onboarding_step2_title">Выберите комфортную тему</h3>
+        <p class="wizard-desc" data-i18n="onboarding_step2_desc">Вы всегда сможете настроить это позже в профиле</p>
+
+        <div class="wizard-pref-block">
+          <label class="form-label" data-i18n="lang_label">Язык</label>
+          <div class="segmented-control" id="onboarding-lang-control">
+            <button class="segment-btn active" data-lang-val="ru">Русский</button>
+            <button class="segment-btn" data-lang-val="en">English</button>
+          </div>
+        </div>
+
+        <div class="wizard-pref-block">
+          <label class="form-label" data-i18n="theme_label">Тема</label>
+          <div class="segmented-control" id="onboarding-theme-control">
+            <button class="segment-btn" data-theme-val="light" data-i18n="theme_light">Светлая</button>
+            <button class="segment-btn" data-theme-val="dark" data-i18n="theme_dark">Тёмная</button>
+            <button class="segment-btn active" data-theme-val="system" data-i18n="theme_system">Системная</button>
+          </div>
+        </div>
+
+        <button class="btn-primary full-width mt-4" id="wizard-to-step-3" data-i18n="continue">
+          Продолжить
+        </button>
+      </div>
+
+      <!-- Step 3: First Task -->
+      <div class="wizard-step-panel" id="wizard-step-3">
+        <h3 class="wizard-heading" data-i18n="onboarding_step3_title">Что у вас на уме?</h3>
+        <p class="wizard-desc" data-i18n="onboarding_step3_desc">Напишите любые задачи своими словами, AI бережно составит день</p>
+
+        <textarea id="onboarding-first-task-text" class="form-textarea" rows="3" placeholder="Например: Завтра в 10:00 пара по экономике, купить продукты, спортзал вечером"></textarea>
+
+        <div class="quick-examples-chips">
+          <button type="button" class="btn-chip" id="onboarding-use-sample" data-i18n="insert_sample">Вставить баланс-пример</button>
+        </div>
+
+        <button class="btn-zen-accent full-width mt-3" id="wizard-create-first-plan" data-i18n="generate_first_plan">
+          Построить гармоничный день
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast: 8-second Undo Notification (Positioned safely above FAB) -->
+  <div id="undo-toast" class="toast hidden" role="alert">
+    <div class="toast-content">
+      <span class="toast-message" id="toast-message-text">Задача удалена</span>
+      <button id="toast-undo-btn" class="toast-undo-action" data-i18n="undo">Отменить</button>
+    </div>
+    <div class="toast-countdown-track">
+      <div class="toast-countdown-bar" id="toast-countdown-bar"></div>
+    </div>
+  </div>
+
+  <!-- Generic Status Toast -->
+  <div id="status-toast" class="status-toast hidden"></div>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>
